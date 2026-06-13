@@ -1,0 +1,37 @@
+titulo: "Exemplo 2D — Opção 1: vácuo embaixo/esquerda, reflexão em cima/direita"
+dimensao: 2
+modo: fonte_fixa
+
+malha:
+  Lx: 20.0
+  Nx: 120
+  Ly: 20.0
+  Ny: 120
+
+bc:
+  esquerda: vacuo
+  inferior: vacuo
+  direita: reflexiva
+  superior: reflexiva
+
+# Fonte com espalhamento alto no quadrante inferior-esquerdo;
+# o restante é um material mais absorvedor sem fonte.
+regioes:
+  - nome: materialB
+    x: [0.0, 20.0]
+    y: [0.0, 20.0]
+    sigma_t: 1.0
+    sigma_s: 0.80
+    fonte: 0.0
+  - nome: materialA          # listado depois: sobrepõe o quadrante
+    x: [0.0, 10.0]
+    y: [0.0, 10.0]
+    sigma_t: 1.0
+    sigma_s: 0.99
+    fonte: 1.0
+
+solver:
+  metodo: direto
+
+saida:
+  prefixo: outputs/exemplo_2d

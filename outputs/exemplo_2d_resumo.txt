@@ -1,0 +1,45 @@
+================================================================
+difusao v1.0.0  (2026-06-09)
+Solver de difusão de nêutrons monoenergética 1D/2D (Opções 1 e 3)
+commit git: e2e3d3d    python: 3.12.3
+Projeto final — Física de Reatores
+================================================================
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/exemplo_2d.yaml
+  título                : Exemplo 2D — Opção 1: vácuo embaixo/esquerda, reflexão em cima/direita
+  dimensão              : 2D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 120 células
+    Ly / Ny             : 20.0 cm / 120 células
+    incógnitas          : 14400
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : reflexiva
+    inferior            : vacuo
+    superior            : reflexiva
+  regiões (2):
+    - materialB    x∈[0.0, 20.0], y∈[0.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+    - materialA    x∈[0.0, 10.0], y∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/exemplo_2d
+----------------------------------------------------------------
+RESULTADOS
+----------------------------------------------------------------
+  solver: direto (LU/MMD)
+  phi_min = 1.15732973e-04
+  phi_max = 2.43625253e+01
+  phi_med = 4.21438017e+00
+BALANÇO DE NÊUTRONS
+  fonte        = 1.0000000000e+02
+  absorção     = 5.1998706633e+01
+  fuga         = 4.8001293367e+01
+  resíduo relativo |A+F-S|/S = 7.461e-14
+----------------------------------------------------------------

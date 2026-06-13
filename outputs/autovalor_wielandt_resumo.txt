@@ -1,0 +1,49 @@
+================================================================
+difusao v1.0.0  (2026-06-09)
+Solver de difusão de nêutrons monoenergética 1D/2D (Opções 1 e 3)
+commit git: e2e3d3d    python: 3.12.3
+Projeto final — Física de Reatores
+================================================================
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/exemplo_autovalor.yaml
+  título                : Autovalor 1D — dois núcleos fracamente acoplados (Wielandt)
+  dimensão              : 1D
+  modo                  : autovalor
+  malha:
+    Lx / Nx             : 60.0 cm / 1200 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (3):
+    - espalhador   x∈[0.0, 60.0]
+        sigma_t = 1        sigma_s = 0.95     -> sigma_a = 0.05, c = 0.95, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+    - nucleo1      x∈[5.0, 25.0]
+        sigma_t = 1        sigma_s = 0.7      -> sigma_a = 0.3, c = 0.7, D = 0.333333
+        nu_sigma_f = 0.39     fonte = 0
+    - nucleo2      x∈[35.0, 55.0]
+        sigma_t = 1        sigma_s = 0.7      -> sigma_a = 0.3, c = 0.7, D = 0.333333
+        nu_sigma_f = 0.39     fonte = 0
+  solver:
+    método linear       : direto
+    autovalor           : wielandt
+    tol_k / tol_phi     : 1e-08 / 1e-06
+  prefixo de saída      : outputs/autovalor_wielandt
+----------------------------------------------------------------
+RESULTADOS
+----------------------------------------------------------------
+  solver: wielandt (2 estágios)
+  iterações: 34
+  fatorações LU: 3
+  k_eff = 1.27764735
+  phi_min = 4.93056095e-02
+  phi_max = 2.63096116e+00
+  phi_med = 1.45213710e+00
+BALANÇO DE NÊUTRONS
+  fissão/k     = 2.4331766622e+01
+  absorção     = 2.4284242876e+01
+  fuga         = 4.7523745696e-02
+  resíduo relativo |A+F-S|/S = 5.840e-16
+----------------------------------------------------------------
