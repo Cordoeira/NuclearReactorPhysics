@@ -1,0 +1,5 @@
+numpy>=1.24
+scipy>=1.10
+PyYAML>=6.0
+seaborn>=0.13     # estilo dos gráficos (plotar.py)
+pytest>=7.0       # apenas para a suíte de testes
