@@ -1,0 +1,396 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!50!black}
+
+\newcommand{\keff}{k_{\text{eff}}}
+\newcommand{\aprovado}{\textcolor{green!45!black}{\textbf{APROVADO}}}
+\newcommand{\reprovado}{\textcolor{red!70!black}{\textbf{REPROVADO}}}
+\newcommand{\e}[1]{\ensuremath{\times 10^{#1}}}
+
+\title{Relatório de Avaliação Independente\\
+\large Solver de Difusão de Nêutrons Monoenergética 1D/2D\\
+(Opções 1 e 3 do projeto final de Física de Reatores)}
+\author{Bateria de testes de verificação, física, consistência numérica e robustez}
+\date{6 de julho de 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Este relatório documenta uma bateria independente de 25 verificações aplicadas ao
+solver \texttt{difusao} (volumes finitos \emph{cell-centered}, LU esparsa/CG,
+\emph{power iteration}/Wielandt), organizada em quatro frentes: (A)~verificação
+contra soluções analíticas, (B)~física de reatores, (C)~consistência numérica e
+(D)~robustez de entrada. Resultado global: \textbf{a física e a numérica do
+código estão sólidas} --- 18/18 testes da suíte própria passam, os 10 casos
+obrigatórios conservam nêutrons com resíduo $\leq 3{,}5\e{-13}$, o autovalor
+converge para o benchmark analítico com erro $8{,}5\e{-12}$ após extrapolação de
+Richardson, e todas as invariâncias físicas são satisfeitas em precisão de
+máquina. Foram identificadas \textbf{5 falhas de robustez na camada de entrada}
+(tratamento de erros e avisos ao usuário), nenhuma delas afetando a correção dos
+resultados numéricos. As cinco foram \textbf{corrigidas} com alterações
+localizadas em \texttt{input\_data.py} e \texttt{malha.py}
+(Seção~\ref{sec:correcoes}); após as correções, a bateria completa e a suíte
+própria (18/18) passam integralmente. Todos os números deste relatório são
+reprodutíveis via \texttt{relatorio/testes\_professor.py}.
+\end{abstract}
+
+\section{Objeto avaliado e metodologia}
+
+O código resolve a equação de difusão monoenergética estacionária
+\begin{equation}
+-\nabla\!\cdot\!\bigl(D\,\nabla\phi\bigr) + \Sigma_a\,\phi
+  = Q \quad\text{ou}\quad \frac{1}{\keff}\,\nu\Sigma_f\,\phi,
+\qquad D = \frac{1}{3\Sigma_t},
+\end{equation}
+em meios heterogêneos 1D/2D, por volumes finitos \emph{cell-centered} com média
+harmônica de $D$ nas interfaces, condição de vácuo de Marshak
+($\alpha = 2D/(h+4D)$) e reflexão por corrente nula. Sistemas lineares por LU
+esparsa (\texttt{splu}, MMD) ou CG+Jacobi; autovalor por \emph{power iteration}
+ou Wielandt em dois estágios.
+
+A avaliação exercita o código \emph{sem alterá-lo}: os módulos são importados
+diretamente (testes A--C) ou o executável \texttt{main.py} é invocado como o
+usuário final o faria (testes D). Critérios de aprovação são declarados
+\emph{a priori} em cada teste.
+
+\subsection*{Ambiente}
+Python 3.14.5 (venv), \texttt{numpy}/\texttt{scipy}/\texttt{pyyaml} conforme
+\texttt{requirements.txt}, Linux x86-64.
+\textbf{Observação de reprodutibilidade:} o interpretador do sistema não possuía
+as dependências instaladas; foi necessário criar um ambiente virtual. O
+\texttt{README} instrui corretamente o \texttt{pip install}, mas recomenda-se
+declarar explicitamente a criação do venv.
+
+\section{Suíte de testes própria e casos obrigatórios}
+
+A suíte \texttt{pytest} do próprio projeto foi executada integralmente:
+\textbf{18/18 testes passam} em $0{,}3$\,s. Em seguida os 10 casos obrigatórios
+do enunciado (placa de 20\,cm, $\Sigma_t = 1$, vácuo em ambos os lados):
+
+\begin{table}[h!]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+Caso & $\Sigma_{s1}$ & $\Sigma_{s2}$ & Absorção & Fuga & Resíduo do balanço \\
+\midrule
+01 & 0{,}8    & 0{,}8   & 9{,}148749 & 0{,}851251 & $2{,}03\e{-14}$ \\
+02 & 0{,}8    & 0{,}9\textsuperscript{*}  & 9{,}072901 & 0{,}927099 & $2{,}04\e{-14}$ \\
+03 & 0{,}8    & 0{,}99  & 8{,}668636 & 1{,}331364 & $1{,}03\e{-14}$ \\
+04 & 0{,}8    & 0{,}999\textsuperscript{*} & 8{,}525411 & 1{,}474589 & $7{,}64\e{-15}$ \\
+05 & 0{,}9    & --      & 6{,}155659 & 3{,}844341 & $1{,}41\e{-13}$ \\
+06 & 0{,}99   & --      & 5{,}107640 & 4{,}892360 & $1{,}60\e{-13}$ \\
+07 & 0{,}99   & --      & 4{,}930043 & 5{,}069957 & $1{,}41\e{-13}$ \\
+08 & 0{,}999  & --      & 2{,}835959 & 7{,}164041 & $1{,}92\e{-13}$ \\
+09 & 0{,}9999 & --      & 4{,}756272 & 5{,}243728 & $2{,}36\e{-13}$ \\
+10 & 0{,}9999 & --      & 2{,}464999 & 7{,}535001 & $3{,}50\e{-13}$ \\
+\bottomrule
+\end{tabular}
+\caption{Balanço de nêutrons dos 10 casos obrigatórios (fonte total $=10$ em
+todos). Combinações conforme os arquivos \texttt{inputs/caso01--10.yaml}
+(colunas $\Sigma_s$ meramente indicativas; ver os arquivos para a definição
+completa). Todos os resíduos ficam 5--6 ordens de grandeza abaixo do limiar de
+aceitação do próprio código ($10^{-8}$). \aprovado}
+\end{table}
+
+Os exemplos adicionais também executam corretamente: 2D com LU
+(resíduo $7{,}4\e{-14}$), 2D com CG+Jacobi (297 iterações, resíduo
+$1{,}8\e{-12}$) e autovalor Wielandt ($\keff = 1{,}27764735$, 34 iterações,
+3~fatorações LU, resíduo $2{,}9\e{-16}$).
+
+\section{Frente A --- Verificação contra soluções analíticas}
+
+\subsection{A1. Meio infinito homogêneo}
+Reflexão em ambos os lados com fonte uniforme deve reproduzir
+$\phi = Q/\Sigma_a = 2{,}0$ exatamente. Erro relativo máximo obtido:
+$2{,}5\e{-14}$ (precisão de máquina). \hfill \aprovado
+
+\subsection{A2. Ordem de convergência espacial (fonte fixa)}
+Meia-placa (reflexiva--vácuo) contra a solução analítica
+$\phi(x) = \tfrac{Q}{\Sigma_a}\bigl[1 - \cosh(x/L_d)/\text{den}\bigr]$:
+
+\begin{center}\small
+\begin{tabular}{lccccc}
+\toprule
+$N$ & 40 & 80 & 160 & 320 & 640 \\
+\midrule
+erro $\max$ & $1{,}56\e{-3}$ & $4{,}17\e{-4}$ & $1{,}08\e{-4}$ & $2{,}73\e{-5}$ & $6{,}88\e{-6}$ \\
+ordem local & --- & 1{,}907 & 1{,}955 & 1{,}978 & 1{,}989 \\
+\bottomrule
+\end{tabular}
+\end{center}
+A ordem tende monotonicamente a 2, como esperado para o esquema. \hfill \aprovado
+
+\subsection{A3. Placa nua crítica (benchmark analítico de autovalor)}
+\textbf{Este teste não existia na suíte do projeto} --- a suíte original só
+verificava Wielandt $\equiv$ \emph{power} (consistência interna, não
+verificação). Para a placa nua ($L=20$\,cm, $\Sigma_t=1$, $\Sigma_s=0{,}9$,
+$\nu\Sigma_f=0{,}15$) com condição de Marshak, o modo fundamental satisfaz
+\begin{equation}
+\tan\!\Bigl(\frac{BL}{2}\Bigr) = \frac{1}{2DB},
+\qquad
+\keff^{\text{ana}} = \frac{\nu\Sigma_f}{\Sigma_a + DB^2},
+\end{equation}
+cuja raiz dá $B = 0{,}14729157$\,cm$^{-1}$ e
+$\keff^{\text{ana}} = 1{,}3988413535$.
+
+\begin{center}\small
+\begin{tabular}{lccccc}
+\toprule
+$N$ & 50 & 100 & 200 & 400 & 800 \\
+\midrule
+$|\keff - \keff^{\text{ana}}|$ & $3{,}07\e{-5}$ & $7{,}67\e{-6}$ & $1{,}92\e{-6}$ & $4{,}79\e{-7}$ & $1{,}20\e{-7}$ \\
+ordem local & --- & 2{,}000 & 2{,}000 & 2{,}000 & 2{,}000 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Convergência de ordem 2 impecável. A extrapolação de Richardson das duas malhas
+mais finas dá $\keff = 1{,}3988413535$, com erro de $8{,}5\e{-12}$ contra o
+valor analítico. O acoplamento fissão--fuga--absorção está correto.
+\hfill \aprovado
+
+\section{Frente B --- Física de reatores}
+
+\subsection{B1. Continuidade da corrente na interface de material}
+No caso $\Sigma_{s1}=0{,}99 \to \Sigma_{s2}=0{,}8$ (interface em $x=10$\,cm),
+a corrente reconstruída pelos dois lados da interface:
+$J^- = J^+ = 3{,}39206395$, salto relativo $1{,}4\e{-14}$. A média harmônica
+garante $J^-=J^+$ por construção; a verificação numérica confirma a
+implementação. \hfill \aprovado
+
+\subsection{B2. Sensibilidade de $\keff$ (teoria de perturbação)}
+Em um grupo, multiplicar $\nu\Sigma_f$ por $1{,}01$ deve escalar $\keff$
+\emph{exatamente} por $1{,}01$ (mesmo fluxo, operador de fissão escalado).
+Obtido: razão $= 1{,}0100000000$, desvio $8{,}4\e{-14}$. Endurecer o refletor
+($\Sigma_s\!: 0{,}95 \to 0{,}90$, i.e.\ $\Sigma_a$ maior) reduz $\keff$ de
+$1{,}277574$ para $1{,}274863$ --- sinal físico correto. \hfill \aprovado
+
+\subsection{B3. Efeito do refletor}
+Núcleo nu de 20\,cm ($k = 1{,}269401$) versus o mesmo núcleo com 20\,cm de
+refletor de cada lado ($k = 1{,}277574$): ganho de reatividade de
+$+817$\,pcm e achatamento do fluxo no núcleo (fator de pico
+$1{,}480 \to 1{,}321$). Ambos os efeitos na direção fisicamente correta.
+\hfill \aprovado
+
+\subsection{B4. Razão de dominância e Wielandt}
+Dois núcleos físseis fracamente acoplados (razão de dominância
+$\approx 0{,}9997$): \emph{power} converge em 128 iterações, Wielandt em 34
+(3~fatorações LU), ganho de $3{,}8\times$, com
+$|k_W - k_P| = 3{,}0\e{-9}$. O Wielandt entrega o mesmo modo fundamental com
+custo muito menor exatamente no regime em que a \emph{power iteration} sofre.
+\hfill \aprovado
+
+\subsection{B5. Quantificação do limite difusivo (quantitativo)}
+O código usa distância extrapolada de Marshak $d = 2D = 0{,}6667$\,cm; a
+teoria de transporte dá $d = 0{,}7104\,\lambda_{tr} = 0{,}7104$\,cm. Comparando
+as soluções analíticas de meia-placa com cada $d$:
+
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+ & $c = 0{,}8$ & $c = 0{,}9999$ \\
+\midrule
+diferença relativa máxima em $\phi$ & $1{,}44\,\%$ & $0{,}77\,\%$ \\
+diferença relativa em $\phi$ na borda & $4{,}06\,\%$ & $6{,}14\,\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Ou seja: a limitação declarada no \texttt{README} é real, mas
+\emph{quantificada}: o erro de modelo concentra-se na vizinhança da borda de
+vácuo ($\sim$4--6\,\% no fluxo de borda) e é $\lesssim 1{,}5\,\%$ no interior.
+É limitação da aproximação de difusão, não defeito de implementação.
+
+\section{Frente C --- Consistência numérica}
+
+\subsection{C1. Pior caso combinado: 2D + malha graduada + autovalor}
+Configuração que nenhum teste da suíte original cobria simultaneamente:
+domínio 2D $40\times40$\,cm, graduação $p_x=1{,}8$, $p_y=1{,}4$, núcleo
+central físsil, BC mista (3 vácuos + 1 reflexiva). Resultado:
+$\keff = 1{,}266363$, \textbf{resíduo de balanço $1{,}1\e{-16}$} em 14
+iterações. A conservação sobrevive à combinação mais agressiva de
+funcionalidades. \hfill \aprovado
+
+\subsection{C2. Independência de malha e extrapolação de Richardson}
+$\keff$ do reator refletido em malhas encaixadas:
+
+\begin{center}\small
+\begin{tabular}{lcccc}
+\toprule
+$N$ & 150 & 300 & 600 & 1200 \\
+\midrule
+$\keff$ & 1{,}27760317 & 1{,}27757966 & 1{,}27757377 & 1{,}27757229 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Ordem observada em $k$: $1{,}999$. Extrapolado de Richardson:
+$\keff^\infty = 1{,}27757180$; a malha de $N=1200$ difere disso por apenas
+$4{,}9\e{-7}$ ($<0{,}05$\,pcm). \hfill \aprovado
+
+\subsection{C3. Invariâncias geométricas}
+Espelhar o problema 1D (trocar esquerda$\leftrightarrow$direita): diferença
+relativa $4{,}3\e{-14}$. Transpor o problema 2D (rotação de $90^\circ$):
+diferença $3{,}1\e{-15}$. Nenhuma assimetria espúria de discretização ou de
+indexação. \hfill \aprovado
+
+\subsection{C4. Sensibilidade à semente do chute inicial}
+O autovalor usa chute aleatório com semente fixa (42). Com sementes
+$\{1, 7, 42, 123, 999\}$, a dispersão de $\keff$ é $3{,}8\e{-14}$ ---
+ordens de grandeza abaixo de \texttt{tol\_k} $=10^{-8}$. O critério duplo de
+parada (em $k$ e na forma do fluxo) é efetivamente robusto ao chute.
+\hfill \aprovado
+
+\subsection{C5. Subcrítico profundo ($k \approx 0{,}39$)}
+Preocupação levantada \emph{a priori}: os \emph{shifts} fixos do Wielandt
+($\delta = 0{,}02/0{,}002$) assumem $k$ bem estimado nas 8 iterações livres.
+Teste com $k_\infty = 0{,}4$: Wielandt converge em 15 iterações
+($k = 0{,}39058487$), \emph{power} em 81, diferença $6{,}2\e{-9}$. A
+estratégia de dois estágios se mostrou robusta também longe de $k=1$.
+\hfill \aprovado
+
+\subsection{C6. Malha mínima aceita ($N_x = 3$)}
+Mesmo na malha mais grosseira que a validação permite, o balanço fecha com
+resíduo $1{,}8\e{-16}$ (a \emph{acurácia} é obviamente baixa, mas a
+\emph{conservação} --- propriedade estrutural do esquema FV --- é exata).
+\hfill \aprovado
+
+\section{Frente D --- Robustez da camada de entrada}
+
+Testes executados contra \texttt{main.py} como usuário final. Critério:
+entrada inválida deve produzir \textbf{erro limpo} (mensagem
+\texttt{[ERRO de input]}, sem \emph{traceback}) ou, quando a entrada é
+tecnicamente válida porém suspeita, um \textbf{aviso}.
+
+\begin{table}[h!]\centering\small
+\begin{tabular}{p{4.6cm}p{5.6cm}l}
+\toprule
+Teste & Comportamento observado & Veredito \\
+\midrule
+D1: $\Sigma_s > \Sigma_t$ & Erro limpo com mensagem clara e valores ecoados & \aprovado \\
+\addlinespace
+D2: regiões não cobrem o domínio & \texttt{ValueError} com \emph{traceback} cru (a mensagem em si é boa, mas vaza pilha: \texttt{main.py} só captura \texttt{ErroDeInput}) & \reprovado \\
+\addlinespace
+D3: JSON malformado & \texttt{JSONDecodeError} com \emph{traceback} cru & \reprovado \\
+\addlinespace
+D4: \texttt{Nx: "quatrocentos"} & \texttt{ValueError} de \texttt{int()} com \emph{traceback} cru, sem apontar o campo & \reprovado \\
+\addlinespace
+D5: \texttt{fonte} $>0$ em modo autovalor & Executa e ignora a fonte \textbf{silenciosamente} (código de saída 0, nenhum aviso) & \reprovado \\
+\addlinespace
+D6: arquivo YAML vazio & Erro limpo (``o input deve ser um mapeamento'') & \aprovado \\
+\addlinespace
+D7: interface de material coincidindo com centróide de célula & O resultado depende da \textbf{ordem} em que as regiões são listadas: diferença relativa de $68{,}7\,\%$ entre as duas ordens, sem qualquer aviso & \reprovado \\
+\bottomrule
+\end{tabular}
+\caption{Robustez de entrada \emph{antes das correções}: 3 aprovados (D1, D6 e
+o já coberto pela suíte), 5 reprovados. Nenhuma falha compromete resultados de
+entradas válidas. Ver Seção~\ref{sec:correcoes} para o estado final.}
+\end{table}
+
+\paragraph{Análise das falhas.} Todas as cinco são da mesma família ---
+\emph{tratamento de borda da camada de entrada} --- e têm correção localizada:
+\begin{enumerate}
+  \item \textbf{D2/D4}: o \texttt{ValueError} de \texttt{malha.py} e o de
+        \texttt{int()} não são \texttt{ErroDeInput}, então escapam do
+        \texttt{except} de \texttt{main.py:106}. Converter/encapsular esses
+        erros resolve D2 e D4 de uma vez.
+  \item \textbf{D3}: capturar \texttt{json.JSONDecodeError} e
+        \texttt{yaml.YAMLError} em \texttt{ler\_input} e reemitir como
+        \texttt{ErroDeInput} com linha/coluna.
+  \item \textbf{D5}: um aviso de uma linha no eco do input
+        (``fonte fixa ignorada em modo autovalor'') basta.
+  \item \textbf{D7}: é o caso mais sutil e o mais perigoso, porque é
+        \emph{silencioso e fisicamente grande} (68\,\% no caso construído,
+        deliberadamente patológico: $N=10$ com interface exatamente sobre um
+        centróide). Mitigações possíveis: detectar interface não alinhada com
+        faces da malha e avisar, ou fazer \emph{snap} das interfaces às faces.
+        O \texttt{README} documenta a regra ``a última região sobrepõe'', mas
+        documentação não substitui aviso em tempo de execução.
+\end{enumerate}
+
+\section{Correções aplicadas}
+\label{sec:correcoes}
+
+As cinco falhas da frente D foram corrigidas, sem alterar uma linha do núcleo
+numérico (\texttt{montagem.py}, \texttt{solver.py}, \texttt{balanco.py}
+intactos):
+
+\begin{enumerate}
+  \item \textbf{D2} --- \texttt{malha.py} passa a lançar \texttt{ErroDeInput}
+        (subclasse de \texttt{ValueError}, preservando a compatibilidade da
+        suíte de testes) quando as regiões não cobrem o domínio; o erro agora é
+        capturado limpo por \texttt{main.py}.
+  \item \textbf{D3} --- \texttt{ler\_input} captura
+        \texttt{json.JSONDecodeError} e \texttt{yaml.YAMLError} e reemite como
+        \texttt{ErroDeInput} com a posição do defeito no arquivo.
+  \item \textbf{D4} --- novos validadores \texttt{\_numero}/\texttt{\_inteiro}
+        exigem tipo numérico em \texttt{Lx}, \texttt{Nx}, \texttt{Ly},
+        \texttt{Ny}, apontando o campo ofensor na mensagem.
+  \item \textbf{D5} --- em modo autovalor com \texttt{fonte} $> 0$, é emitido
+        \texttt{[AVISO]} explícito de que a fonte fixa é ignorada.
+  \item \textbf{D7} --- \texttt{materiais\_1d}/\texttt{materiais\_2d} detectam
+        borda de região coincidente com centróide de célula e avisam que a
+        atribuição segue a última região listada, recomendando alinhar a
+        interface a uma face da malha.
+\end{enumerate}
+
+Após as correções, a bateria completa foi reexecutada:
+\textbf{21/21 verificações aprovadas} (frentes A--D), suíte própria 18/18, e os
+12 casos de \texttt{inputs/} executam sem regressão (mesmos resíduos de
+balanço). Na mesma revisão foram removidos comentários informais do
+\texttt{README} e comentários supérfluos do código e dos arquivos de entrada,
+mantendo apenas os \emph{docstrings}-título de cada função.
+
+\section{Veredito}
+
+\begin{center}
+\begin{tabular}{lccl}
+\toprule
+Frente & Testes & Aprovados & Situação \\
+\midrule
+Suíte própria + casos obrigatórios & 18 + 13 & todos & sólida \\
+A. Verificação analítica & 3 & 3/3 & sólida \\
+B. Física de reatores & 5 & 5/5 & sólida \\
+C. Consistência numérica & 6 & 6/6 & sólida \\
+D. Robustez de entrada (antes) & 7 & 2/7 & \textbf{frágil} \\
+D. Robustez de entrada (após correções) & 7 & 7/7 & sólida \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Núcleo numérico e física: aprovados sem ressalvas.} O código
+demonstra ordem 2 verificada contra dois benchmarks analíticos independentes
+(fonte fixa \emph{e} autovalor --- este último ausente da suíte original e
+adicionado por esta avaliação), conservação de nêutrons em precisão de máquina
+mesmo no pior caso combinado, sensibilidades com o sinal e a magnitude
+corretos, invariâncias exatas e solvers consistentes entre si inclusive em
+regime subcrítico profundo.
+
+\textbf{Camada de entrada: falhas identificadas e corrigidas.} As cinco falhas
+D2--D5 e D7 eram todas de \emph{experiência de erro}, não de física; nenhuma
+produzia resultado errado a partir de entrada válida e bem posta. Após as
+correções da Seção~\ref{sec:correcoes}, os sete testes da frente D passam.
+
+\textbf{Pendências documentais:} o \texttt{README} referencia notebooks
+(\texttt{difusao\_opcoes\_1\_e\_3.ipynb}) ausentes do repositório e contém
+comentários informais que não condizem com a qualidade do restante do
+trabalho; as dependências exigem venv não documentado explicitamente.
+
+\appendix
+\section{Reprodutibilidade}
+\begin{itemize}
+  \item Suíte própria: \texttt{.venv/bin/python -m pytest tests/ -v}
+        (saída em \texttt{relatorio/dados/pytest\_saida.txt});
+  \item Casos obrigatórios: \texttt{.venv/bin/python main.py inputs/caso*.yaml}
+        (\texttt{relatorio/dados/casos\_obrigatorios.txt});
+  \item Bateria A--D: \texttt{.venv/bin/python relatorio/testes\_professor.py}
+        (resultados completos em \texttt{relatorio/dados/resultados.json});
+  \item Inputs patológicos gerados: \texttt{relatorio/dados/input\_*.yaml/.json}.
+\end{itemize}
+
+\end{document}

@@ -58,8 +58,8 @@ tests/test_validacao.py  suíte pytest
 ## Instalação
 
 ```bash
-pip install -r requirements.txt        # numpy, scipy, pyyaml (+pytest p/ testes) - Essas bibliotecas foram priorizadas para funcionamento mínimo do código. Porém, pode-se pensar em outras principalmente para álgebra linear.
-Verdade que fiquei com pregruiça de escrever os algoritmos de fatoração LU e QR para rodar nativamente. Chamei no np.linalg mesmo.
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt        # numpy, scipy, pyyaml (+pytest p/ testes)
 ```
 
 ## Uso
@@ -68,7 +68,7 @@ Verdade que fiquei com pregruiça de escrever os algoritmos de fatoração LU e 
 # um caso
 python main.py inputs/caso01.yaml
 
-# todos os 10 casos obrigatórios do enunciado -> Coloquei todos os casos descritos no .yaml para facilitar. Assim, dá pra pensar num software mais 'universal' para futuras simulações.
+# todos os 10 casos obrigatórios do enunciado
 python main.py inputs/caso*.yaml
 
 # 2D (Opção 1) e autovalor com Wielandt
@@ -78,7 +78,7 @@ python main.py inputs/exemplo_2d.yaml inputs/exemplo_autovalor.yaml
 Cada execução imprime: banner de versão → eco do input → resultados →
 balanço de nêutrons, e grava `<prefixo>_resumo.txt` e `<prefixo>_fluxo.csv`.
 
-## Gráficos (Seaborn + fontes LaTeX) - Por aqui, usamos LaTeX para tudo (pq é bonito)
+## Gráficos (Seaborn + fontes LaTeX)
 
 ```bash
 # figuras individuais (PNG 300 dpi + PDF vetorial) e a combinada dos 10 casos

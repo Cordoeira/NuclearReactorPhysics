@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 import pathlib
+import sys
 from typing import Any
 
 import yaml
@@ -40,6 +41,21 @@ def _exigir(condicao: bool, mensagem: str) -> None:
         raise ErroDeInput(mensagem)
 
 
+def _numero(valor, campo: str) -> float:
+    """Converte para float exigindo tipo numérico no input."""
+    if isinstance(valor, bool) or not isinstance(valor, (int, float)):
+        raise ErroDeInput(f"{campo}: deve ser numérico (recebido {valor!r}).")
+    return float(valor)
+
+
+def _inteiro(valor, campo: str) -> int:
+    """Converte para int exigindo valor inteiro no input."""
+    if isinstance(valor, bool) or not isinstance(valor, (int, float)) \
+            or int(valor) != valor:
+        raise ErroDeInput(f"{campo}: deve ser inteiro (recebido {valor!r}).")
+    return int(valor)
+
+
 def _validar_regiao(reg: dict, indice: int, dimensao: int) -> dict:
     reg = dict(reg)
     reg.setdefault("nome", f"regiao{indice + 1}")
@@ -70,10 +86,13 @@ def ler_input(caminho: str | pathlib.Path) -> dict:
     _exigir(caminho.exists(), f"arquivo de input não encontrado: {caminho}")
 
     texto = caminho.read_text(encoding="utf-8")
-    if caminho.suffix.lower() == ".json":
-        bruto = json.loads(texto)
-    else:
-        bruto = yaml.safe_load(texto)
+    try:
+        if caminho.suffix.lower() == ".json":
+            bruto = json.loads(texto)
+        else:
+            bruto = yaml.safe_load(texto)
+    except (json.JSONDecodeError, yaml.YAMLError) as exc:
+        raise ErroDeInput(f"falha ao interpretar {caminho}: {exc}") from None
     _exigir(isinstance(bruto, dict), "o input deve ser um mapeamento chave: valor.")
 
     dados = _mesclar_defaults(bruto, _DEFAULTS)
@@ -86,15 +105,16 @@ def ler_input(caminho: str | pathlib.Path) -> dict:
 
     _exigir("malha" in dados, "faltou o bloco 'malha'.")
     malha = dados["malha"]
-    _exigir(malha.get("Lx", 0) > 0 and int(malha.get("Nx", 0)) >= 3,
-            "malha: exige Lx > 0 e Nx >= 3.")
-    malha["Nx"] = int(malha["Nx"])
+    malha["Lx"] = _numero(malha.get("Lx"), "malha.Lx")
+    malha["Nx"] = _inteiro(malha.get("Nx"), "malha.Nx")
+    _exigir(malha["Lx"] > 0 and malha["Nx"] >= 3, "malha: exige Lx > 0 e Nx >= 3.")
     malha.setdefault("graduacao_x", 1.0)
     _exigir(malha["graduacao_x"] >= 1.0, "malha: graduacao_x >= 1.")
     if dim == 2:
-        _exigir(malha.get("Ly", 0) > 0 and int(malha.get("Ny", 0)) >= 3,
+        malha["Ly"] = _numero(malha.get("Ly"), "malha.Ly")
+        malha["Ny"] = _inteiro(malha.get("Ny"), "malha.Ny")
+        _exigir(malha["Ly"] > 0 and malha["Ny"] >= 3,
                 "malha 2D: exige Ly > 0 e Ny >= 3.")
-        malha["Ny"] = int(malha["Ny"])
         malha.setdefault("graduacao_y", 1.0)
         _exigir(malha["graduacao_y"] >= 1.0, "malha: graduacao_y >= 1.")
 
@@ -119,6 +139,9 @@ def ler_input(caminho: str | pathlib.Path) -> dict:
     if dados["modo"] == "autovalor":
         _exigir(any(r["nu_sigma_f"] > 0 for r in dados["regioes"]),
                 "modo 'autovalor' exige ao menos uma região com nu_sigma_f > 0.")
+        if any(r["fonte"] > 0 for r in dados["regioes"]):
+            print("[AVISO] modo 'autovalor': o campo 'fonte' das regiões é "
+                  "ignorado (problema homogêneo de autovalor).", file=sys.stderr)
 
     dados.setdefault("saida", {})
     dados["saida"].setdefault("prefixo", f"outputs/{caminho.stem}")

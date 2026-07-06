@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.5, pytest-9.1.1, pluggy-1.6.0 -- /home/cordoeira/Documentos/Doutorado/FísicaNuclear/NuclearReactorPhysics/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/cordoeira/Documentos/Doutorado/FísicaNuclear/NuclearReactorPhysics
+collecting ... collected 18 items
+
+tests/test_validacao.py::test_meio_infinito PASSED                       [  5%]
+tests/test_validacao.py::test_convergencia_ordem_2 PASSED                [ 11%]
+tests/test_validacao.py::test_balanco_10_casos[0.8-0.8] PASSED           [ 16%]
+tests/test_validacao.py::test_balanco_10_casos[0.8-0.9] PASSED           [ 22%]
+tests/test_validacao.py::test_balanco_10_casos[0.8-0.99] PASSED          [ 27%]
+tests/test_validacao.py::test_balanco_10_casos[0.8-0.999] PASSED         [ 33%]
+tests/test_validacao.py::test_balanco_10_casos[0.8-0.9999] PASSED        [ 38%]
+tests/test_validacao.py::test_balanco_10_casos[0.99-0.8] PASSED          [ 44%]
+tests/test_validacao.py::test_balanco_10_casos[0.99-0.9] PASSED          [ 50%]
+tests/test_validacao.py::test_balanco_10_casos[0.99-0.99] PASSED         [ 55%]
+tests/test_validacao.py::test_balanco_10_casos[0.99-0.999] PASSED        [ 61%]
+tests/test_validacao.py::test_balanco_10_casos[0.99-0.9999] PASSED       [ 66%]
+tests/test_validacao.py::test_validacao_cruzada_1d_2d PASSED             [ 72%]
+tests/test_validacao.py::test_autovalor_wielandt_igual_power PASSED      [ 77%]
+tests/test_validacao.py::test_simetria_quarto_de_dominio PASSED          [ 83%]
+tests/test_validacao.py::test_input_invalido_detectado PASSED            [ 88%]
+tests/test_validacao.py::test_input_regioes_nao_cobrem PASSED            [ 94%]
+tests/test_validacao.py::test_cg_jacobi_concorda_com_lu PASSED           [100%]
+
+============================== 18 passed in 0.30s ==============================

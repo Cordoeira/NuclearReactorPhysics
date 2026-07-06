@@ -1,16 +1,4 @@
-"""Suíte de validação do solver de difusão (pytest).
-
-Testes (todos derivados/validados nos notebooks que acompanham o projeto):
-  1. meio infinito homogêneo -> phi = Q/Sigma_a (precisão de máquina);
-  2. convergência espacial de ordem 2 contra solução analítica;
-  3. balanço de nêutrons nos 10 problemas-teste obrigatórios;
-  4. validação cruzada: o solver 2D reproduz o 1D com reflexão em y;
-  5. autovalor: Wielandt == power iteration (mesmo k, menos iterações);
-  6. simetria: BCs reflexivas equivalem a 1/4 de domínio espelhado;
-  7. validação de input: erros são detectados e reportados.
-
-Rodar com:  python -m pytest tests/ -v
-"""
+"""Suíte de validação do solver de difusão (pytest)."""
 
 import numpy as np
 import pytest
@@ -22,7 +10,6 @@ from difusao.montagem import montar_1d, montar_2d
 from difusao.solver import resolver_autovalor, resolver_fonte_fixa
 
 
-# ---------------------------------------------------------------- helpers
 def _mat_uniforme(N, sigma_t, sigma_s, nu_sf=0.0, fonte=1.0):
     return {
         "sigma_t": np.full(N, sigma_t),
@@ -41,7 +28,6 @@ def _analitico_meiaplaca(x, L, sigma_t, sigma_s, Q):
     return (Q / sigma_a) * (1.0 - np.cosh(x / Ld) / den)
 
 
-# ---------------------------------------------------------------- testes
 def test_meio_infinito():
     """Reflexão dos dois lados emula meio infinito: phi = Q/Sigma_a."""
     N = 200
@@ -86,7 +72,7 @@ def test_balanco_10_casos(s1, s2):
     phi = resolver_fonte_fixa(A, q).phi
     bal = balanco_1d(faces, mat, phi, "vacuo", "vacuo")
     assert bal.residuo_relativo < 1e-11
-    assert abs(bal.fonte - 10.0) < 1e-12          # fonte = 1.0 * 10 cm
+    assert abs(bal.fonte - 10.0) < 1e-12
 
 
 def test_validacao_cruzada_1d_2d():
@@ -137,11 +123,9 @@ def test_autovalor_wielandt_igual_power():
     res_w = resolver_autovalor(A, F, metodo="wielandt")
     res_p = resolver_autovalor(A, F, metodo="power")
     assert abs(res_w.k_eff - res_p.k_eff) < 5e-7
-    # Wielandt deve convergir em ~3x menos iterações (ou melhor; o ganho
-    # exato depende de quanto o chute inicial excita o modo de tilt).
     assert res_w.iteracoes < res_p.iteracoes / 3
     assert res_w.iteracoes < 60
-    assert 1.27 < res_w.k_eff < 1.29              # sanidade física
+    assert 1.27 < res_w.k_eff < 1.29
 
 
 def test_simetria_quarto_de_dominio():
@@ -227,6 +211,6 @@ def test_cg_jacobi_concorda_com_lu():
                         "vacuo", "reflexiva", "vacuo", "reflexiva")
     r_lu = resolver_fonte_fixa(A, q, metodo="direto")
     r_cg = resolver_fonte_fixa(A, q, metodo="cg", tol=1e-10)
-    assert "cg" in r_cg.metodo            # não caiu no fallback
+    assert "cg" in r_cg.metodo
     assert r_cg.iteracoes > 0
     assert np.max(np.abs(r_lu.phi - r_cg.phi)) < 1e-8

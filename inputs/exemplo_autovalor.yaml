@@ -1,8 +1,4 @@
 titulo: "Autovalor 1D — dois núcleos fracamente acoplados (Wielandt)"
-# Caso difícil de propósito: dois núcleos físseis idênticos separados por
-# um espalhador fazem k2 -> k1 (razão de dominância ~0.9997). A power
-# iteration clássica precisa de ~1200 iterações; o Wielandt, ~35.
-# Troque solver.autovalor.metodo para "power" e compare as iterações.
 dimensao: 1
 modo: autovalor
 
@@ -23,7 +19,7 @@ regioes:
     x: [5.0, 25.0]
     sigma_t: 1.0
     sigma_s: 0.70
-    nu_sigma_f: 0.39      # k_inf = 0.39/0.30 = 1.3
+    nu_sigma_f: 0.39
   - nome: nucleo2
     x: [35.0, 55.0]
     sigma_t: 1.0
@@ -33,7 +29,7 @@ regioes:
 solver:
   metodo: direto
   autovalor:
-    metodo: wielandt      # power | wielandt
+    metodo: wielandt
     tol_k: 1.0e-8
     tol_phi: 1.0e-6
 

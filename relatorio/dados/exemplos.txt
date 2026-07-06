@@ -1,0 +1,119 @@
+================================================================
+difusao v1.0.0  (2026-06-09)
+Solver de difusão de nêutrons monoenergética 1D/2D (Opções 1 e 3)
+commit git: 0c27cb8    python: 3.14.5
+Projeto final — Física de Reatores
+================================================================
+
+>>> caso: inputs/exemplo_2d.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/exemplo_2d.yaml
+  título                : Exemplo 2D — Opção 1: vácuo embaixo/esquerda, reflexão em cima/direita
+  dimensão              : 2D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 120 células
+    Ly / Ny             : 20.0 cm / 120 células
+    incógnitas          : 14400
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : reflexiva
+    inferior            : vacuo
+    superior            : reflexiva
+  regiões (2):
+    - materialB    x∈[0.0, 20.0], y∈[0.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+    - materialA    x∈[0.0, 10.0], y∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/exemplo_2d
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 1.157330e-04, max = 2.436253e+01
+  balanço: fonte = 100.000000 | absorção = 51.998707 | fuga = 48.001293
+  resíduo relativo do balanço = 7.446e-14
+  tempo de solução = 33.3 ms
+  saídas: outputs/exemplo_2d_resumo.txt | outputs/exemplo_2d_fluxo.csv
+
+
+>>> caso: inputs/exemplo_2d_cg.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/exemplo_2d_cg.yaml
+  título                : Exemplo 2D (CG) — mesmo problema do exemplo_2d, resolvido por gradientes conjugados
+  dimensão              : 2D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 120 células
+    Ly / Ny             : 20.0 cm / 120 células
+    incógnitas          : 14400
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : reflexiva
+    inferior            : vacuo
+    superior            : reflexiva
+  regiões (2):
+    - materialB    x∈[0.0, 20.0], y∈[0.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+    - materialA    x∈[0.0, 10.0], y∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+  solver:
+    método linear       : cg
+    tolerância cg       : 1e-10
+  prefixo de saída      : outputs/exemplo_2d_cg
+----------------------------------------------------------------
+RESULTADOS
+  solver: cg + Jacobi, 297 iterações
+  phi: min = 1.157330e-04, max = 2.436253e+01
+  balanço: fonte = 100.000000 | absorção = 51.998707 | fuga = 48.001293
+  resíduo relativo do balanço = 1.844e-12
+  tempo de solução = 99.8 ms
+  saídas: outputs/exemplo_2d_cg_resumo.txt | outputs/exemplo_2d_cg_fluxo.csv
+
+
+>>> caso: inputs/exemplo_autovalor.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/exemplo_autovalor.yaml
+  título                : Autovalor 1D — dois núcleos fracamente acoplados (Wielandt)
+  dimensão              : 1D
+  modo                  : autovalor
+  malha:
+    Lx / Nx             : 60.0 cm / 1200 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (3):
+    - espalhador   x∈[0.0, 60.0]
+        sigma_t = 1        sigma_s = 0.95     -> sigma_a = 0.05, c = 0.95, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+    - nucleo1      x∈[5.0, 25.0]
+        sigma_t = 1        sigma_s = 0.7      -> sigma_a = 0.3, c = 0.7, D = 0.333333
+        nu_sigma_f = 0.39     fonte = 0
+    - nucleo2      x∈[35.0, 55.0]
+        sigma_t = 1        sigma_s = 0.7      -> sigma_a = 0.3, c = 0.7, D = 0.333333
+        nu_sigma_f = 0.39     fonte = 0
+  solver:
+    método linear       : direto
+    autovalor           : wielandt
+    tol_k / tol_phi     : 1e-08 / 1e-06
+  prefixo de saída      : outputs/autovalor_wielandt
+----------------------------------------------------------------
+RESULTADOS
+  k_eff = 1.27764735  (wielandt (2 estágios), 34 iterações, 3 fatorações LU)
+  phi: min = 4.930561e-02, max = 2.630961e+00
+  balanço: fissão/k = 24.331767 | absorção = 24.284243 | fuga = 0.047524
+  resíduo relativo do balanço = 2.920e-16
+  tempo de solução = 4.5 ms
+  saídas: outputs/autovalor_wielandt_resumo.txt | outputs/autovalor_wielandt_fluxo.csv
+

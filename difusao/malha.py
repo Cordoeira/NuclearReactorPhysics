@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import sys
+
 import numpy as np
+
+from .input_data import ErroDeInput
 
 
 def gerar_faces(L: float, N: int, graduacao: float = 1.0) -> np.ndarray:
@@ -26,14 +30,31 @@ def _propriedade_por_celula_1d(regioes: list[dict], x_c: np.ndarray,
         valores[dentro] = reg[chave]
     if np.isnan(valores).any():
         faltam = x_c[np.isnan(valores)]
-        raise ValueError(
+        raise ErroDeInput(
             "células sem material: as regiões não cobrem todo o domínio "
             f"(primeiro centróide descoberto: x = {faltam[0]:.6g})."
         )
     return valores
 
 
+def _avisar_interface_no_centroide(regioes: list[dict], coords: np.ndarray,
+                                   eixo: str) -> None:
+    """Avisa quando uma borda de região coincide com um centróide de célula."""
+    for reg in regioes:
+        if eixo not in reg:
+            continue
+        for borda in reg[eixo]:
+            atol = 1e-12 * max(abs(borda), 1.0)
+            if np.any(np.isclose(coords, borda, rtol=0.0, atol=atol)):
+                print(f"[AVISO] borda da região '{reg.get('nome', '?')}' em "
+                      f"{eixo} = {borda:g} coincide com um centróide de célula: "
+                      "a célula segue a última região listada. Alinhe a "
+                      "interface a uma face da malha para evitar ambiguidade.",
+                      file=sys.stderr)
+
+
 def materiais_1d(regioes: list[dict], x_c: np.ndarray) -> dict[str, np.ndarray]:
+    _avisar_interface_no_centroide(regioes, x_c, "x")
     return {ch: _propriedade_por_celula_1d(regioes, x_c, ch)
             for ch in ("sigma_t", "sigma_s", "nu_sigma_f", "fonte")}
 
@@ -48,7 +69,7 @@ def _propriedade_por_celula_2d(regioes: list[dict], X: np.ndarray,
         valores[dentro] = reg[chave]
     if np.isnan(valores).any():
         j, i = np.argwhere(np.isnan(valores))[0]
-        raise ValueError(
+        raise ErroDeInput(
             "células sem material: as regiões não cobrem todo o domínio "
             f"(primeiro centróide descoberto: x = {X[j, i]:.6g}, y = {Y[j, i]:.6g})."
         )
@@ -57,6 +78,8 @@ def _propriedade_por_celula_2d(regioes: list[dict], X: np.ndarray,
 
 def materiais_2d(regioes: list[dict], x_c: np.ndarray,
                  y_c: np.ndarray) -> dict[str, np.ndarray]:
+    _avisar_interface_no_centroide(regioes, x_c, "x")
+    _avisar_interface_no_centroide(regioes, y_c, "y")
     X, Y = np.meshgrid(x_c, y_c)
     return {ch: _propriedade_por_celula_2d(regioes, X, Y, ch)
             for ch in ("sigma_t", "sigma_s", "nu_sigma_f", "fonte")}

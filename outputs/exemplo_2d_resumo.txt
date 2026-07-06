@@ -1,7 +1,7 @@
 ================================================================
 difusao v1.0.0  (2026-06-09)
 Solver de difusão de nêutrons monoenergética 1D/2D (Opções 1 e 3)
-commit git: e2e3d3d    python: 3.12.3
+commit git: 0c27cb8    python: 3.14.5
 Projeto final — Física de Reatores
 ================================================================
 ----------------------------------------------------------------
@@ -41,5 +41,5 @@ BALANÇO DE NÊUTRONS
   fonte        = 1.0000000000e+02
   absorção     = 5.1998706633e+01
   fuga         = 4.8001293367e+01
-  resíduo relativo |A+F-S|/S = 7.461e-14
+  resíduo relativo |A+F-S|/S = 7.446e-14
 ----------------------------------------------------------------

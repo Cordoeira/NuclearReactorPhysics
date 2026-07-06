@@ -14,8 +14,6 @@ bc:
   direita: reflexiva
   superior: reflexiva
 
-# Fonte com espalhamento alto no quadrante inferior-esquerdo;
-# o restante é um material mais absorvedor sem fonte.
 regioes:
   - nome: materialB
     x: [0.0, 20.0]
@@ -23,7 +21,7 @@ regioes:
     sigma_t: 1.0
     sigma_s: 0.80
     fonte: 0.0
-  - nome: materialA          # listado depois: sobrepõe o quadrante
+  - nome: materialA
     x: [0.0, 10.0]
     y: [0.0, 10.0]
     sigma_t: 1.0

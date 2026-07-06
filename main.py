@@ -17,7 +17,6 @@ _LIMIAR_BALANCO = 1.0e-8
 
 
 def executar_caso(caminho_input: str) -> int:
-    
     dados = ler_input(caminho_input)
     eco_input(dados)
 

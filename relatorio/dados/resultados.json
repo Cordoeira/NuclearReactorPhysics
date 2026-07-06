@@ -1,0 +1,232 @@
+{
+  "A1_meio_infinito": {
+    "phi_exato": 2.0,
+    "erro_rel_max": 2.5424107263916085e-14,
+    "aprovado": true
+  },
+  "A2_convergencia": {
+    "Ns": [
+      40,
+      80,
+      160,
+      320,
+      640
+    ],
+    "erros": [
+      0.0015638866525256034,
+      0.00041703725618413845,
+      0.00010759587897735123,
+      2.7320707809752598e-05,
+      6.883178444549998e-06
+    ],
+    "ordens": [
+      1.9068877744353618,
+      1.9545534507598679,
+      1.9775560566171275,
+      1.988848043624525
+    ],
+    "aprovado": true
+  },
+  "A3_placa_critica": {
+    "L": 20.0,
+    "sigma_t": 1.0,
+    "sigma_s": 0.9,
+    "nu_sigma_f": 0.15,
+    "B_analitico": 0.14729157324867942,
+    "k_analitico": 1.3988413534774216,
+    "Ns": [
+      50,
+      100,
+      200,
+      400,
+      800
+    ],
+    "k_eff": [
+      1.3988720186388544,
+      1.398849020415309,
+      1.3988432702461961,
+      1.3988418326656884,
+      1.3988414732681458
+    ],
+    "erros": [
+      3.066516143279685e-05,
+      7.666937887451653e-06,
+      1.9167687745902384e-06,
+      4.791882668442327e-07,
+      1.1979072422896309e-07
+    ],
+    "ordens": [
+      1.9998781486550758,
+      1.9999741811228942,
+      2.0000118224023127,
+      2.000076383420305
+    ],
+    "k_richardson": 1.398841353468965,
+    "erro_richardson": 8.456568778569817e-12,
+    "aprovado": true
+  },
+  "B1_corrente_interface": {
+    "x_interface": 10.0,
+    "J_esquerda": 3.392063952321061,
+    "J_direita": 3.3920639523211085,
+    "salto_relativo": 1.4008446220904015e-14,
+    "aprovado": true
+  },
+  "B2_sensibilidade": {
+    "k_base": 1.2775737666664748,
+    "k_nusf_1p01": 1.2903495043332474,
+    "razao_obtida": 1.0100000000000844,
+    "razao_esperada": 1.01,
+    "desvio_escala": 8.43769498715119e-14,
+    "k_refletor_mais_absorvedor": 1.2748634309624893,
+    "k_caiu": true,
+    "aprovado": true
+  },
+  "B3_efeito_refletor": {
+    "k_nu": 1.2694012702691069,
+    "k_refletido": 1.2775737666664748,
+    "ganho_reatividade_pcm": 817.2496397367945,
+    "fator_pico_nu": 1.4799447924420035,
+    "fator_pico_refletido": 1.3214506453554964,
+    "aprovado": true
+  },
+  "B4_dominancia": {
+    "k_wielandt": 1.2776473537561241,
+    "k_power": 1.277647350736608,
+    "dif_k": 3.019516192637184e-09,
+    "iter_wielandt": 34,
+    "iter_power": 128,
+    "fatoracoes_wielandt": 3,
+    "ganho": 3.764705882352941,
+    "aprovado": true
+  },
+  "B5_limite_difusivo": {
+    "c_0.8": {
+      "d_marshak_cm": 0.6666666666666666,
+      "d_transporte_cm": 0.7104,
+      "dif_rel_max_phi": 0.014418134750222847,
+      "dif_rel_phi_borda": 0.04059724317487611
+    },
+    "c_0.9999": {
+      "d_marshak_cm": 0.6666666666666666,
+      "d_transporte_cm": 0.7104,
+      "dif_rel_max_phi": 0.007660123156303486,
+      "dif_rel_phi_borda": 0.061439895998789504
+    }
+  },
+  "C1_pior_caso": {
+    "k_eff": 1.2663634464402223,
+    "residuo_balanco": 1.1181115834661938e-16,
+    "iteracoes": 14,
+    "aprovado": true
+  },
+  "C2_independencia_malha": {
+    "k_por_N": {
+      "150": 1.2776031714505154,
+      "300": 1.2775796580867553,
+      "600": 1.2775737666664748,
+      "1200": 1.277572292991398
+    },
+    "ordem_observada_k": 1.9991970082685613,
+    "k_extrapolado_richardson": 1.2775718017663724,
+    "dif_k_malha_fina_vs_extrapolado": 4.912250255451056e-07,
+    "aprovado": true
+  },
+  "C3_invariancias": {
+    "dif_rel_espelho_1d": 4.2851715963394067e-14,
+    "dif_rel_transposicao_2d": 3.0806993736388377e-15,
+    "aprovado": true
+  },
+  "C4_semente": {
+    "sementes": [
+      1,
+      7,
+      42,
+      123,
+      999
+    ],
+    "k_eff": [
+      1.2775737666664757,
+      1.2775737666665123,
+      1.2775737666664748,
+      1.2775737666664797,
+      1.2775737666665081
+    ],
+    "dispersao": 3.752553823233029e-14,
+    "aprovado": true
+  },
+  "C5_subcritico": {
+    "wielandt": {
+      "k_eff": 0.3905848661117705,
+      "iteracoes": 15,
+      "convergiu": true
+    },
+    "power": {
+      "k_eff": 0.3905848598663878,
+      "iteracoes": 81,
+      "convergiu": true
+    },
+    "dif_k": 6.245382710989844e-09,
+    "aprovado": true
+  },
+  "C6_malha_minima": {
+    "residuo_balanco": 1.7763568394002506e-16,
+    "aprovado": true
+  },
+  "D_robustez": {
+    "D1_sigma_s_maior": {
+      "returncode": 1,
+      "traceback_vazou": false,
+      "erro_limpo": true,
+      "stderr_resumo": "[ERRO de input] regiões[0]: exige 0 <= sigma_s <= sigma_t (recebido sigma_s=1.5, sigma_t=1.0).",
+      "esperado": "erro limpo",
+      "aprovado": true
+    },
+    "D2_buraco_dominio": {
+      "returncode": 1,
+      "traceback_vazou": false,
+      "erro_limpo": true,
+      "stderr_resumo": "[ERRO de input] células sem material: as regiões não cobrem todo o domínio (primeiro centróide descoberto: x = 4.1).",
+      "esperado": "erro limpo",
+      "aprovado": true
+    },
+    "D3_json_malformado": {
+      "returncode": 1,
+      "traceback_vazou": false,
+      "erro_limpo": true,
+      "stderr_resumo": "[ERRO de input] falha ao interpretar /home/cordoeira/Documentos/Doutorado/FísicaNuclear/NuclearReactorPhysics/relatorio/dados/input_json_malformado.json: Expecting property name enclosed in double quotes: line 1 column 27 (char 26)",
+      "esperado": "erro limpo",
+      "aprovado": true
+    },
+    "D4_nx_string": {
+      "returncode": 1,
+      "traceback_vazou": false,
+      "erro_limpo": true,
+      "stderr_resumo": "[ERRO de input] malha.Nx: deve ser inteiro (recebido 'quatrocentos').",
+      "esperado": "erro limpo",
+      "aprovado": true
+    },
+    "D5_fonte_em_autovalor": {
+      "returncode": 0,
+      "rodou": true,
+      "avisa_fonte_ignorada": true,
+      "esperado": "aviso ao usuário",
+      "aprovado": true
+    },
+    "D6_yaml_vazio": {
+      "returncode": 1,
+      "traceback_vazou": false,
+      "erro_limpo": true,
+      "stderr_resumo": "[ERRO de input] o input deve ser um mapeamento chave: valor.",
+      "esperado": "erro limpo",
+      "aprovado": true
+    },
+    "D7_interface_no_centroide": {
+      "dif_rel_entre_ordens": 0.6873561730433706,
+      "esperado": "independência da ordem ou aviso",
+      "silencioso": false,
+      "aviso_emitido": true,
+      "aprovado": true
+    }
+  }
+}

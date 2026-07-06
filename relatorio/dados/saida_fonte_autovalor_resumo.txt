@@ -7,43 +7,37 @@ Projeto final — Física de Reatores
 ----------------------------------------------------------------
 ECO DO INPUT
 ----------------------------------------------------------------
-  arquivo               : inputs/exemplo_autovalor.yaml
-  título                : Autovalor 1D — dois núcleos fracamente acoplados (Wielandt)
+  arquivo               : /home/cordoeira/Documentos/Doutorado/FísicaNuclear/NuclearReactorPhysics/relatorio/dados/input_fonte_autovalor.yaml
+  título                : (sem título)
   dimensão              : 1D
   modo                  : autovalor
   malha:
-    Lx / Nx             : 60.0 cm / 1200 células
+    Lx / Nx             : 20.0 cm / 100 células
   condições de contorno:
     esquerda            : vacuo
     direita             : vacuo
-  regiões (3):
-    - espalhador   x∈[0.0, 60.0]
-        sigma_t = 1        sigma_s = 0.95     -> sigma_a = 0.05, c = 0.95, D = 0.333333
-        nu_sigma_f = 0        fonte = 0
-    - nucleo1      x∈[5.0, 25.0]
+  regiões (1):
+    - regiao1      x∈[0.0, 20.0]
         sigma_t = 1        sigma_s = 0.7      -> sigma_a = 0.3, c = 0.7, D = 0.333333
-        nu_sigma_f = 0.39     fonte = 0
-    - nucleo2      x∈[35.0, 55.0]
-        sigma_t = 1        sigma_s = 0.7      -> sigma_a = 0.3, c = 0.7, D = 0.333333
-        nu_sigma_f = 0.39     fonte = 0
+        nu_sigma_f = 0.39     fonte = 5
   solver:
     método linear       : direto
     autovalor           : wielandt
     tol_k / tol_phi     : 1e-08 / 1e-06
-  prefixo de saída      : outputs/autovalor_wielandt
+  prefixo de saída      : relatorio/dados/saida_fonte_autovalor
 ----------------------------------------------------------------
 RESULTADOS
 ----------------------------------------------------------------
   solver: wielandt (2 estágios)
-  iterações: 34
+  iterações: 13
   fatorações LU: 3
-  k_eff = 1.27764735
-  phi_min = 4.93056095e-02
-  phi_max = 2.63096116e+00
-  phi_med = 1.45213710e+00
+  k_eff = 1.26940309
+  phi_min = 3.95788553e-01
+  phi_max = 3.52154553e+00
+  phi_med = 2.37977639e+00
 BALANÇO DE NÊUTRONS
-  fissão/k     = 2.4331766622e+01
-  absorção     = 2.4284242876e+01
-  fuga         = 4.7523745696e-02
-  resíduo relativo |A+F-S|/S = 2.920e-16
+  fissão/k     = 1.4622822329e+01
+  absorção     = 1.4278658362e+01
+  fuga         = 3.4416396674e-01
+  resíduo relativo |A+F-S|/S = 1.093e-15
 ----------------------------------------------------------------

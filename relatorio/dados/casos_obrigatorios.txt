@@ -1,0 +1,336 @@
+================================================================
+difusao v1.0.0  (2026-06-09)
+Solver de difusão de nêutrons monoenergética 1D/2D (Opções 1 e 3)
+commit git: 0c27cb8    python: 3.14.5
+Projeto final — Física de Reatores
+================================================================
+
+>>> caso: inputs/caso01.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso01.yaml
+  título                : Caso 01 — sigma_s1 = 0.8, sigma_s2 = 0.8 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso01
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 7.638487e-04, max = 4.880579e+00
+  balanço: fonte = 10.000000 | absorção = 9.148749 | fuga = 0.851251
+  resíduo relativo do balanço = 2.025e-14
+  tempo de solução = 1.4 ms
+  saídas: outputs/caso01_resumo.txt | outputs/caso01_fluxo.csv
+
+
+>>> caso: inputs/caso02.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso02.yaml
+  título                : Caso 02 — sigma_s1 = 0.8, sigma_s2 = 0.99 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso02
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 1.576768e-01, max = 4.926277e+00
+  balanço: fonte = 10.000000 | absorção = 9.072901 | fuga = 0.927099
+  resíduo relativo do balanço = 2.043e-14
+  tempo de solução = 2.8 ms
+  saídas: outputs/caso02_resumo.txt | outputs/caso02_fluxo.csv
+
+
+>>> caso: inputs/caso03.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso03.yaml
+  título                : Caso 03 — sigma_s1 = 0.9, sigma_s2 = 0.8 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.9      -> sigma_a = 0.1, c = 0.9, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso03
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 1.258632e-03, max = 9.153871e+00
+  balanço: fonte = 10.000000 | absorção = 8.668636 | fuga = 1.331364
+  resíduo relativo do balanço = 1.030e-14
+  tempo de solução = 1.0 ms
+  saídas: outputs/caso03_resumo.txt | outputs/caso03_fluxo.csv
+
+
+>>> caso: inputs/caso04.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso04.yaml
+  título                : Caso 04 — sigma_s1 = 0.9, sigma_s2 = 0.99 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.9      -> sigma_a = 0.1, c = 0.9, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso04
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 2.906948e-01, max = 9.445687e+00
+  balanço: fonte = 10.000000 | absorção = 8.525411 | fuga = 1.474589
+  resíduo relativo do balanço = 7.638e-15
+  tempo de solução = 0.6 ms
+  saídas: outputs/caso04_resumo.txt | outputs/caso04_fluxo.csv
+
+
+>>> caso: inputs/caso05.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso05.yaml
+  título                : Caso 05 — sigma_s1 = 0.99, sigma_s2 = 0.8 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso05
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 4.017041e-03, max = 3.602517e+01
+  balanço: fonte = 10.000000 | absorção = 6.155659 | fuga = 3.844341
+  resíduo relativo do balanço = 1.410e-13
+  tempo de solução = 0.5 ms
+  saídas: outputs/caso05_resumo.txt | outputs/caso05_fluxo.csv
+
+
+>>> caso: inputs/caso06.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso06.yaml
+  título                : Caso 06 — sigma_s1 = 0.99, sigma_s2 = 0.99 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso06
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 1.345355e+00, max = 4.549425e+01
+  balanço: fonte = 10.000000 | absorção = 5.107640 | fuga = 4.892360
+  resíduo relativo do balanço = 1.599e-13
+  tempo de solução = 0.7 ms
+  saídas: outputs/caso06_resumo.txt | outputs/caso06_fluxo.csv
+
+
+>>> caso: inputs/caso07.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso07.yaml
+  título                : Caso 07 — sigma_s1 = 0.999, sigma_s2 = 0.8 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.999    -> sigma_a = 0.001, c = 0.999, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso07
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 5.393528e-03, max = 4.984333e+01
+  balanço: fonte = 10.000000 | absorção = 4.930043 | fuga = 5.069957
+  resíduo relativo do balanço = 1.414e-13
+  tempo de solução = 0.6 ms
+  saídas: outputs/caso07_resumo.txt | outputs/caso07_fluxo.csv
+
+
+>>> caso: inputs/caso08.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso08.yaml
+  título                : Caso 08 — sigma_s1 = 0.999, sigma_s2 = 0.99 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.999    -> sigma_a = 0.001, c = 0.999, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso08
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 2.110662e+00, max = 7.144704e+01
+  balanço: fonte = 10.000000 | absorção = 2.835959 | fuga = 7.164041
+  resíduo relativo do balanço = 1.922e-13
+  tempo de solução = 0.5 ms
+  saídas: outputs/caso08_resumo.txt | outputs/caso08_fluxo.csv
+
+
+>>> caso: inputs/caso09.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso09.yaml
+  título                : Caso 09 — sigma_s1 = 0.9999, sigma_s2 = 0.8 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.9999   -> sigma_a = 0.0001, c = 0.9999, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.8      -> sigma_a = 0.2, c = 0.8, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso09
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 5.589281e-03, max = 5.181412e+01
+  balanço: fonte = 10.000000 | absorção = 4.756272 | fuga = 5.243728
+  resíduo relativo do balanço = 2.355e-13
+  tempo de solução = 0.6 ms
+  saídas: outputs/caso09_resumo.txt | outputs/caso09_fluxo.csv
+
+
+>>> caso: inputs/caso10.yaml
+----------------------------------------------------------------
+ECO DO INPUT
+----------------------------------------------------------------
+  arquivo               : inputs/caso10.yaml
+  título                : Caso 10 — sigma_s1 = 0.9999, sigma_s2 = 0.99 (teste obrigatório do enunciado)
+  dimensão              : 1D
+  modo                  : fonte_fixa
+  malha:
+    Lx / Nx             : 20.0 cm / 400 células
+  condições de contorno:
+    esquerda            : vacuo
+    direita             : vacuo
+  regiões (2):
+    - material1    x∈[0.0, 10.0]
+        sigma_t = 1        sigma_s = 0.9999   -> sigma_a = 0.0001, c = 0.9999, D = 0.333333
+        nu_sigma_f = 0        fonte = 1
+    - material2    x∈[10.0, 20.0]
+        sigma_t = 1        sigma_s = 0.99     -> sigma_a = 0.01, c = 0.99, D = 0.333333
+        nu_sigma_f = 0        fonte = 0
+  solver:
+    método linear       : direto
+  prefixo de saída      : outputs/caso10
+----------------------------------------------------------------
+RESULTADOS
+  solver: direto (LU/MMD)
+  phi: min = 2.237159e+00, max = 7.572900e+01
+  balanço: fonte = 10.000000 | absorção = 2.464999 | fuga = 7.535001
+  resíduo relativo do balanço = 3.499e-13
+  tempo de solução = 0.6 ms
+  saídas: outputs/caso10_resumo.txt | outputs/caso10_fluxo.csv
+
