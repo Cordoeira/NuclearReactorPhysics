@@ -122,12 +122,71 @@ solver:  {metodo: direto}               # direto | cg; autovalor: power | wielan
 saida:   {prefixo: outputs/meucaso}
 ```
 
+### Como modificar os parâmetros materiais
+
+Todos os parâmetros físicos ficam na lista `regioes` do arquivo de input —
+**nenhum parâmetro material está fixo no código**. Cada região é um material
+homogêneo definido por:
+
+| Campo | Símbolo | Unidade | Significado | Obrigatório? |
+|---|---|---|---|---|
+| `x` (2D: + `y`) | — | cm | intervalo `[início, fim]` ocupado pela região | sim |
+| `sigma_t` | $\Sigma_t$ | cm⁻¹ | seção de choque macroscópica total | sim ($>0$) |
+| `sigma_s` | $\Sigma_s$ | cm⁻¹ | seção de choque de espalhamento ($0 \le \Sigma_s \le \Sigma_t$) | sim |
+| `fonte` | $Q$ | n/(cm³·s) | fonte fixa isotrópica (só em `modo: fonte_fixa`) | não (default 0) |
+| `nu_sigma_f` | $\nu\Sigma_f$ | cm⁻¹ | produção por fissão (só em `modo: autovalor`) | não (default 0) |
+
+Quantidades derivadas internamente (`difusao/montagem.py`):
+$\Sigma_a = \Sigma_t - \Sigma_s$ e $D = 1/(3\Sigma_t)$ — portanto, para
+variar a absorção ou a difusão, altere `sigma_t`/`sigma_s` diretamente.
+O **eco do input** impresso em cada execução (e gravado no `_resumo.txt`)
+mostra, por região, os valores derivados $\Sigma_a$, $c = \Sigma_s/\Sigma_t$
+e $D$ — use-o para conferir que a modificação foi aplicada como esperado.
+
+Regras práticas:
+
+* **Sobreposição**: a última região listada sobrepõe as anteriores — útil
+  para definir um "fundo" e inserir zonas por cima (ver
+  `inputs/exemplo_autovalor.yaml`).
+* Todo o domínio `[0, Lx]` deve estar coberto por ao menos uma região.
+* Em `modo: autovalor` o campo `fonte` é ignorado (problema homogêneo) e ao
+  menos uma região precisa de `nu_sigma_f > 0`.
+
+**Exemplo — reproduzir um caso e variar um parâmetro.** Para repetir o
+caso 5 com espalhamento maior no material 2:
+
+```bash
+cp inputs/caso05.yaml inputs/meucaso.yaml
+# edite regioes[1].sigma_s: 0.8 -> 0.99  (e saida.prefixo, se quiser)
+python main.py inputs/meucaso.yaml
+```
+
+Os resultados saem em `<prefixo>_resumo.txt` (fluxo médio/máximo, balanço,
+$k_\text{eff}$ se autovalor) e `<prefixo>_fluxo.csv` (perfil completo), e a
+figura correspondente com `python plotar.py inputs/meucaso.yaml`.
+
 ## Os 10 problemas-teste obrigatórios
 
 `inputs/caso01.yaml` … `caso10.yaml`: placa de 20 cm, metade material 1
 ($\Sigma_{t}=1$, $Q=1$, $\Sigma_{s1}\in\{0.8, 0.9, 0.99, 0.999, 0.9999\}$),
 metade material 2 ($\Sigma_t=1$, $Q=0$, $\Sigma_{s2}\in\{0.8, 0.99\}$), vácuo
 em ambos os lados. Resíduo de balanço obtido: $10^{-14}$–$10^{-13}$ em todos.
+
+Mapeamento arquivo → parâmetros (os inputs diferem **apenas** em `sigma_s`
+das duas regiões):
+
+| Caso | $\Sigma_{s1}$ (material 1, $0\le x<10$) | $\Sigma_{s2}$ (material 2, $10\le x\le 20$) |
+|---|---|---|
+| `caso01` | 0.8    | 0.8  |
+| `caso02` | 0.8    | 0.99 |
+| `caso03` | 0.9    | 0.8  |
+| `caso04` | 0.9    | 0.99 |
+| `caso05` | 0.99   | 0.8  |
+| `caso06` | 0.99   | 0.99 |
+| `caso07` | 0.999  | 0.8  |
+| `caso08` | 0.999  | 0.99 |
+| `caso09` | 0.9999 | 0.8  |
+| `caso10` | 0.9999 | 0.99 |
 
 ## Testes
 
